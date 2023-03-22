@@ -5,7 +5,7 @@ struct ContentView: View {
     @State private var newTaskTitle = ""
     @State private var isEditing = false
     @State private var editingTask: Task?
-    @State private var editingTask: Task?
+    @State private var taskDueDate = Date()
     
     private func loadTasks() {
         if let data = UserDefaults.standard.data(forKey: "tasks"),
@@ -21,7 +21,7 @@ struct ContentView: View {
     }
     
     private func addTask() {
-        let newTask = Task(title: newTaskTitle, isCompleted: false, date: taskDueDate)
+        let newTask = Task(title: newTaskTitle, isCompleted: false, taskDueDate: taskDueDate)
         tasks.append(newTask)
         saveTasks()
         newTaskTitle = ""
@@ -70,16 +70,25 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                    TextField(isEditing ? "Edit task..." : "Enter a new task...", text: $newTaskTitle)
+                HStack {
+                    Spacer()
                     TextField(isEditing ? "Edit task..." : "Enter a new task...", text: $newTaskTitle)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
                     Button(action: isEditing ? updateTask : addTask) {
-                        Image(systemName: isEditing ? "pencil.circle.fill" : "arrow.up.circle.fill")
-                        Image(systemName: "paperplane.fill")
+                        Image(systemName: isEditing ? "pencil.circle.fill" : "paperplane.circle.fill")
                             .resizable()
                             .frame(width: 24, height: 24)
                             .foregroundColor(.blue)
                     }
+                    Spacer()
+                }
+                HStack {
+                    DatePicker(
+                        "Due by",
+                        selection: $taskDueDate,
+                        displayedComponents: [.hourAndMinute, .date]
+                    )
                     .disabled(newTaskTitle.isEmpty)
                 }
                 .padding()
@@ -90,8 +99,8 @@ struct ContentView: View {
                             Button(action: {
                                 toggleTaskCompletion(task: task)
                             }) {
-                                Text(task.title).strikethrough(task.isCompleted, color: .gray)
-                                Text(task.title).strikethrough(task.isCompleted, color: .gray)
+                                Image(systemName: task.isCompleted ? "checkmark.square" : "square")
+                            }
                             Text(task.title)
                                 .strikethrough(task.isCompleted, color: .red)
                                 .onTapGesture {
@@ -100,26 +109,27 @@ struct ContentView: View {
                                 .onLongPressGesture {
                                     startEditing(task: task)
                                 }
-                                }
+                            //Date(taskDueDate)
+                                
                         }
                         .padding()
                     }
                     .onDelete(perform: deleteTask)
                 }
             }
-            .navigationTitle("TaskTracker")
+            .onAppear(perform: loadTasks)
+            .navigationTitle("Task Tracker")
             .navigationBarItems(leading: isEditing ? Button(action: cancelEditing) {
                 Text("Cancel")
             } : nil, trailing: Button(action: clearAllTasks) {
                 Text("Clear All")
             })
-            .navigationTitle("To do List")
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
+    public static var previews: some View {
         ContentView()
     }
 }
