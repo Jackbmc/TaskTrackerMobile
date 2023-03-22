@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var tasks = [Task]()
     @State private var newTaskTitle = ""
+    @State private var taskDueDate = Date()
     
     private func loadTasks() {
         if let data = UserDefaults.standard.data(forKey: "tasks"),
@@ -18,7 +19,7 @@ struct ContentView: View {
     }
     
     private func addTask() {
-        let newTask = Task(title: newTaskTitle, isCompleted: false)
+        let newTask = Task(title: newTaskTitle, isCompleted: false, date: taskDueDate)
         tasks.append(newTask)
         saveTasks()
         newTaskTitle = ""
@@ -44,7 +45,7 @@ struct ContentView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                     
                     Button(action: addTask) {
-                        Image(systemName: "arrow.up.circle.fill")
+                        Image(systemName: "paperplane.fill")
                             .resizable()
                             .frame(width: 24, height: 24)
                             .foregroundColor(.blue)
@@ -58,11 +59,9 @@ struct ContentView: View {
                         HStack {
                             Button(action: {
                                 toggleTaskCompletion(task: task)
-                            }) {
-                                Text(task.title)
-                                    .strikethrough(task.isCompleted, color: .red)
-                                Spacer()
+                            }){
                                 Image(systemName: task.isCompleted ? "checkmark.square" : "square")
+                                Text(task.title).strikethrough(task.isCompleted, color: .gray)
                             }
                         }
                         .padding()
@@ -71,7 +70,7 @@ struct ContentView: View {
                 }
             }
             .onAppear(perform: loadTasks)
-            .navigationTitle("TaskTracker")
+            .navigationTitle("To do List")
         }
     }
 }
