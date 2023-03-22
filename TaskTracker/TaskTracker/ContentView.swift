@@ -5,7 +5,14 @@ struct ContentView: View {
     @State private var newTaskTitle = ""
     @State private var isEditing = false
     @State private var editingTask: Task?
-    @State private var taskDueDate = Date()
+    @State private var taskDueDate = Date().addingTimeInterval(3600 * 24)
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
     
     private func loadTasks() {
         if let data = UserDefaults.standard.data(forKey: "tasks"),
@@ -92,7 +99,6 @@ struct ContentView: View {
                     .disabled(newTaskTitle.isEmpty)
                 }
                 .padding()
-                
                 List {
                     ForEach(tasks) { task in
                         HStack {
@@ -109,13 +115,22 @@ struct ContentView: View {
                                 .onLongPressGesture {
                                     startEditing(task: task)
                                 }
-                            //Date(taskDueDate)
-                                
+                            if isEditing && editingTask?.id == task.id {
+                                DatePicker(
+                                    "",
+                                    selection: $taskDueDate,
+                                    displayedComponents: [.hourAndMinute, .date]
+                                )
+                            } else {
+                                Text("\(task.taskDueDate, formatter: dateFormatter)")
+                                    .foregroundColor(.gray)
+                            }
                         }
                         .padding()
                     }
                     .onDelete(perform: deleteTask)
                 }
+
             }
             .onAppear(perform: loadTasks)
             .navigationTitle("Task Tracker")
