@@ -37,8 +37,14 @@ struct ContentView: View {
     }
     
     private func deleteTask(at offsets: IndexSet) {
+        offsets.forEach { index in
+            removeNotification(for: tasks[index])
+        }
         tasks.remove(atOffsets: offsets)
         saveTasks()
+    }
+    private func removeNotification(for task: Task) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id.uuidString])
     }
     
     private func clearAllTasks() {
