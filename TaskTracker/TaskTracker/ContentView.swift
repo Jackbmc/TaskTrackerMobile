@@ -137,7 +137,7 @@ struct ContentView: View {
                             Button(action: {
                                 toggleTaskCompletion(task: task)
                             }) {
-                                Image(systemName: task.isCompleted ? "checkmark.square" : "square")
+                                Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
                             }
                             VStack(alignment: .leading) {
                                 Text(task.title)
