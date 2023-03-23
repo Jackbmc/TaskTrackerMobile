@@ -1,6 +1,8 @@
 import SwiftUI
+import UserNotifications
 
 struct ContentView: View {
+
     @State private var tasks = [Task]()
     @State private var newTaskTitle = ""
     @State private var isEditing = false
@@ -12,8 +14,17 @@ struct ContentView: View {
         formatter.timeStyle = .short
         return formatter
     }()
-
-    
+    private func scheduleNotification(for task: Task) {
+        let content = UNMutableNotificationContent()
+        content.title = "Task Reminder"
+        content.body = task.title
+        content.sound = UNNotificationSound.default
+        content.categoryIdentifier = "TASK_CATEGORY"
+        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: task.taskDueDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: task.id.uuidString, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+    }
     private func loadTasks() {
         if let data = UserDefaults.standard.data(forKey: "tasks"),
            let storedTasks = try? JSONDecoder().decode([Task].self, from: data) {
@@ -32,6 +43,7 @@ struct ContentView: View {
         tasks.append(newTask)
         saveTasks()
         newTaskTitle = ""
+        scheduleNotification(for: newTask)
     }
     
     private func toggleTaskCompletion(task: Task) {
@@ -54,6 +66,7 @@ struct ContentView: View {
     private func startEditing(task: Task) {
         editingTask = task
         newTaskTitle = task.title
+        taskDueDate = task.taskDueDate
         isEditing = true
     }
     
@@ -61,6 +74,7 @@ struct ContentView: View {
         if let task = editingTask,
            let index = tasks.firstIndex(where: { $0.id == task.id }) {
             tasks[index].title = newTaskTitle
+            tasks[index].taskDueDate = taskDueDate
             saveTasks()
             isEditing = false
             newTaskTitle = ""
@@ -83,7 +97,8 @@ struct ContentView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                     
                     Button(action: isEditing ? updateTask : addTask) {
-                        Image(systemName: isEditing ? "pencil.circle.fill" : "paperplane.circle.fill")
+                        Image(systemName: isEditing ? "pencil.circle.fill":"paperplane.circle.fill")
+
                             .resizable()
                             .frame(width: 24, height: 24)
                             .foregroundColor(.blue)
