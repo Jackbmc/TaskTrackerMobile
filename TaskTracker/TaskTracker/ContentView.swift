@@ -116,7 +116,7 @@ struct ContentView: View {
                     TextField(isEditing ? "Edit task..." : "Enter a new task...", text: $newTaskTitle)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                     Button(action: isEditing ? updateTask : addTask) {
-                        Image(systemName: isEditing ? "pencil.circle.fill" : "arrow.up.circle.fill")
+                        Image(systemName: isEditing ? "pencil.circle.fill" : "paperplane.circle.fill")
                             .resizable()
                             .frame(width: 24, height: 24)
                             .foregroundColor(.blue)
@@ -130,7 +130,7 @@ struct ContentView: View {
                         .datePickerStyle(CompactDatePickerStyle())
                         .labelsHidden()
                 }
-                .padding()
+                //.padding()
                 List {
                     ForEach(sortedTasks()) { task in
                         HStack {
@@ -151,7 +151,7 @@ struct ContentView: View {
                                 if let dueDate = task.dueDate {
                                     Text(formatter.string(from: dueDate))
                                         .font(.footnote)
-                                        .foregroundColor(isTaskOverdue(task: task) ? Color(#colorLiteral(red: 1, green: 0, blue: 0.6392156863, alpha: 1)) : Color.secondary)
+                                        .foregroundColor(isTaskOverdue(task: task) ? Color(#colorLiteral(red: 1, green: 0, blue: 0.5, alpha: 1)) : Color.secondary)
                                 }
                             }
                         }
